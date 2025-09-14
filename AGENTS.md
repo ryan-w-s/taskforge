@@ -7,6 +7,7 @@ Jira clone.
 ## Features
 
 * Tickets have a title, description, status, assignee, project, and labels
+* Tickets store their history of status changes, comments, and assignees.
 * Users can be assigned to tickets.
 * Projects have a name and description.
 * Labels have a name and description.
