@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Ticket{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-6">
+  <h1 class="text-2xl font-semibold mb-4">Create Ticket</h1>
+
+  @if bag().any()
+  <div class="bg-yellow-100 text-yellow-800 p-3 mb-4 rounded">
+    <ul>
+      @for message in bag().messages()
+        <li>{{ message }}</li>
+      @endfor
+    </ul>
+  </div>
+  @endif
+
+  <form method="POST" action="/tickets" class="space-y-4">
+    {{ csrf_field }}
+
+    <div>
+      <label class="block text-sm font-medium">Title</label>
+      <input class="w-full border rounded p-2" type="text" name="title" required maxlength="255" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Description</label>
+      <textarea class="w-full border rounded p-2" name="description" rows="5"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Status</label>
+      <select class="w-full border rounded p-2" name="status" required>
+        @for s in statuses
+          <option value="{{ s }}">{{ s }}</option>
+        @endfor
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Assignee</label>
+      <select class="w-full border rounded p-2" name="assignee_id">
+        <option value="">Unassigned</option>
+        @for user in users
+          <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+        @endfor
+      </select>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Create</button>
+      <a class="px-4 py-2 bg-gray-200 rounded" href="/tickets">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+

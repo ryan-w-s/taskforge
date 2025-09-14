@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">#{{ ticket.id }} - {{ ticket.title }}</h1>
+    <a class="px-3 py-2 bg-gray-200 rounded" href="/tickets/{{ ticket.id }}/edit">Edit</a>
+  </div>
+
+  <div class="bg-white shadow rounded p-4 space-y-2">
+    <div><span class="font-medium">Status:</span> {{ ticket.status }}</div>
+    <div><span class="font-medium">Assignee:</span> {{ ticket.assignee and ticket.assignee.name or 'Unassigned' }}</div>
+    <div>
+      <span class="font-medium">Description:</span>
+      <div class="mt-1 whitespace-pre-wrap">{{ ticket.description or '-' }}</div>
+    </div>
+  </div>
+
+  <form class="mt-6" method="POST" action="/tickets/{{ ticket.id }}/delete">
+    {{ csrf_field }}
+    <button class="px-3 py-2 bg-red-600 text-white rounded" type="submit">Delete</button>
+    <a class="px-3 py-2 bg-gray-200 rounded" href="/tickets">Back</a>
+  </form>
+</div>
+{% endblock %}
+
+
