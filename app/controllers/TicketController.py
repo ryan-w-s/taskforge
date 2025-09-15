@@ -5,6 +5,7 @@ from masonite.response import Response
 
 from app.models.Ticket import Ticket
 from app.models.User import User
+from app.models.TicketHistory import TicketHistory
 
 
 class TicketController(Controller):
@@ -45,11 +46,30 @@ class TicketController(Controller):
             assignee_id=assignee_id,
         )
 
+        # Create history entry for ticket creation
+        TicketHistory.create(
+            ticket_id=ticket.id,
+            changed_by_id=request.user().id,
+            event_type="created",
+            to_status=ticket.status,
+            to_assignee_id=ticket.assignee_id,
+        )
+
         return response.redirect(f"/tickets/{ticket.id}")
 
     def show(self, view: View, request: Request):
         ticket = Ticket.with_("assignee").find_or_fail(request.param("id"))
-        return view.render("tickets.show", {"ticket": ticket})
+
+        # Load ticket history with actor relationships
+        history = TicketHistory.with_("actor", "from_assignee", "to_assignee") \
+                              .where("ticket_id", ticket.id) \
+                              .order_by("-created_at") \
+                              .get()
+
+        return view.render("tickets.show", {
+            "ticket": ticket,
+            "history": history
+        })
 
     def edit(self, view: View, request: Request):
         ticket = Ticket.find_or_fail(request.param("id"))
@@ -75,6 +95,12 @@ class TicketController(Controller):
             return response.back().with_errors(errors)
 
         ticket = Ticket.find_or_fail(request.param("id"))
+
+        # Store original values before updating
+        original_status = ticket.status
+        original_assignee_id = ticket.assignee_id
+
+        # Update the ticket
         ticket.title = request.input("title")
         ticket.description = request.input("description")
         ticket.status = request.input("status")
@@ -84,11 +110,65 @@ class TicketController(Controller):
         )
         ticket.save()
 
+        # Create history entries for changes
+        history_entries = []
+
+        # Check for status change
+        if ticket.status != original_status:
+            history_entries.append({
+                "ticket_id": ticket.id,
+                "changed_by_id": request.user().id,
+                "event_type": "status_changed",
+                "from_status": original_status,
+                "to_status": ticket.status,
+            })
+
+        # Check for assignee change
+        if ticket.assignee_id != original_assignee_id:
+            history_entries.append({
+                "ticket_id": ticket.id,
+                "changed_by_id": request.user().id,
+                "event_type": "assignee_changed",
+                "from_assignee_id": original_assignee_id,
+                "to_assignee_id": ticket.assignee_id,
+            })
+
+        # Create history entries
+        for entry in history_entries:
+            TicketHistory.create(**entry)
+
         return response.redirect(f"/tickets/{ticket.id}")
 
     def delete(self, request: Request, response: Response):
         ticket = Ticket.find_or_fail(request.param("id"))
         ticket.delete()
         return response.redirect("/tickets")
+
+    def comment(self, request: Request, response: Response):
+        """Add a comment to a ticket"""
+        ticket_id = request.param("id")
+
+        # Ensure ticket exists
+        ticket = Ticket.find_or_fail(ticket_id)
+
+        # Validate comment
+        errors = request.validate(
+            {
+                "body": "required|length:1..2000",
+            }
+        )
+
+        if errors:
+            return response.back().with_errors(errors)
+
+        # Create comment history entry
+        TicketHistory.create(
+            ticket_id=ticket_id,
+            changed_by_id=request.user().id,
+            event_type="commented",
+            body=request.input("body"),
+        )
+
+        return response.redirect(f"/tickets/{ticket_id}")
 
 
