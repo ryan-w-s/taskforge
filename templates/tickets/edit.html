@@ -48,6 +48,16 @@
       </select>
     </div>
 
+    <div>
+      <label class="block text-sm font-medium">Project</label>
+      <select class="w-full border rounded p-2" name="project_id">
+        <option value="" {{ 'selected' if not ticket.project_id else '' }}>No Project</option>
+        @for project in projects
+          <option value="{{ project.id }}" {{ 'selected' if project.id == ticket.project_id else '' }}>{{ project.name }}</option>
+        @endfor
+      </select>
+    </div>
+
     <div class="flex gap-2">
       <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Save</button>
       <a class="px-4 py-2 bg-gray-200 rounded" href="/tickets/{{ ticket.id }}">Cancel</a>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">Projects</h1>
+    <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/projects/create">New Project</a>
+  </div>
+
+  {% if projects %}
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow rounded">
+      <thead>
+        <tr class="text-left">
+          <th class="p-3">Name</th>
+          <th class="p-3">Tickets</th>
+          <th class="p-3">Created By</th>
+          <th class="p-3">Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in projects %}
+        <tr class="border-t">
+          <td class="p-3">
+            <a class="text-blue-700" href="/projects/{{ p.id }}">{{ p.name }}</a>
+          </td>
+          <td class="p-3">{{ p.tickets|length }}</td>
+          <td class="p-3">{{ p.creator and p.creator.name or '-' }}</td>
+          <td class="p-3">{{ p.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-gray-600">No projects yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+

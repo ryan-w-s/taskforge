@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Project {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-semibold">{{ project.name }}</h1>
+    <div class="flex gap-2">
+      <a class="px-3 py-2 bg-gray-200 rounded" href="/projects/{{ project.id }}/edit">Edit</a>
+      <form method="POST" action="/projects/{{ project.id }}/delete">
+        {{ csrf_field }}
+        <button class="px-3 py-2 bg-red-600 text-white rounded" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded p-4">
+    <div><span class="font-medium">Description:</span> <span class="whitespace-pre-wrap">{{ project.description or '-' }}</span></div>
+    <div><span class="font-medium">Created By:</span> {{ project.creator and project.creator.name or '-' }}</div>
+    <div><span class="font-medium">Created At:</span> {{ project.created_at.strftime('%Y-%m-%d') }}</div>
+  </div>
+
+  <div class="bg-white shadow rounded p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-semibold">Tickets</h2>
+      <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/tickets/create">New Ticket</a>
+    </div>
+
+    {% if tickets %}
+      <div class="divide-y">
+        {% for t in tickets %}
+          <div class="py-2 flex items-center justify-between">
+            <div>
+              <a class="text-blue-700" href="/tickets/{{ t.id }}">#{{ t.id }} - {{ t.title }}</a>
+              <div class="text-sm text-gray-500">Status: {{ t.status }} · Assignee: {{ t.assignee and t.assignee.name or 'Unassigned' }}</div>
+            </div>
+            <a class="text-blue-700" href="/tickets/{{ t.id }}/edit">Edit</a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-600">No tickets yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

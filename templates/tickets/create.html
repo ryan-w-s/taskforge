@@ -48,6 +48,16 @@
       </select>
     </div>
 
+    <div>
+      <label class="block text-sm font-medium">Project</label>
+      <select class="w-full border rounded p-2" name="project_id">
+        <option value="">No Project</option>
+        @for project in projects
+          <option value="{{ project.id }}">{{ project.name }}</option>
+        @endfor
+      </select>
+    </div>
+
     <div class="flex gap-2">
       <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Create</button>
       <a class="px-4 py-2 bg-gray-200 rounded" href="/tickets">Cancel</a>

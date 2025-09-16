@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Project{% endblock %}
+
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-2xl font-semibold mb-4">Create Project</h1>
+
+  @if bag().any()
+  <div class="bg-yellow-100 text-yellow-800 p-3 mb-4 rounded">
+    <ul>
+      @for message in bag().messages()
+        <li>{{ message }}</li>
+      @endfor
+    </ul>
+  </div>
+  @endif
+
+  <form method="POST" action="/projects" class="space-y-4">
+    {{ csrf_field }}
+
+    <div>
+      <label class="block text-sm font-medium">Name</label>
+      <input class="w-full border rounded p-2" type="text" name="name" required maxlength="255" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Description</label>
+      <textarea class="w-full border rounded p-2" name="description" rows="4"></textarea>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Create</button>
+      <a class="px-4 py-2 bg-gray-200 rounded" href="/projects">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+

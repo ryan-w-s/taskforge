@@ -12,6 +12,7 @@
   <div class="bg-white shadow rounded p-4 space-y-2">
     <div><span class="font-medium">Status:</span> {{ ticket.status }}</div>
     <div><span class="font-medium">Assignee:</span> {{ ticket.assignee and ticket.assignee.name or 'Unassigned' }}</div>
+    <div><span class="font-medium">Project:</span> {{ ticket.project and ticket.project.name or '-' }}</div>
     <div>
       <span class="font-medium">Description:</span>
       <div class="mt-1 whitespace-pre-wrap">{{ ticket.description or '-' }}</div>

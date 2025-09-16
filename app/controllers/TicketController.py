@@ -6,6 +6,7 @@ from masonite.response import Response
 from app.models.Ticket import Ticket
 from app.models.User import User
 from app.models.TicketHistory import TicketHistory
+from app.models.Project import Project
 
 
 class TicketController(Controller):
@@ -15,11 +16,13 @@ class TicketController(Controller):
 
     def create(self, view: View):
         users = User.all()
+        projects = Project.all()
         return view.render(
             "tickets.create",
             {
                 "statuses": Ticket.ALLOWED_STATUSES,
                 "users": users,
+                "projects": projects,
             },
         )
 
@@ -39,11 +42,17 @@ class TicketController(Controller):
             int(assignee_raw) if assignee_raw and str(assignee_raw).isdigit() else None
         )
 
+        project_raw = request.input("project_id")
+        project_id = (
+            int(project_raw) if project_raw and str(project_raw).isdigit() else None
+        )
+
         ticket = Ticket.create(
             title=request.input("title"),
             description=request.input("description"),
             status=request.input("status"),
             assignee_id=assignee_id,
+            project_id=project_id,
         )
 
         # Create history entry for ticket creation
@@ -58,7 +67,7 @@ class TicketController(Controller):
         return response.redirect(f"/tickets/{ticket.id}")
 
     def show(self, view: View, request: Request):
-        ticket = Ticket.with_("assignee").find_or_fail(request.param("id"))
+        ticket = Ticket.with_("assignee", "project").find_or_fail(request.param("id"))
 
         # Load ticket history with actor relationships
         history = TicketHistory.with_("actor", "from_assignee", "to_assignee") \
@@ -74,12 +83,14 @@ class TicketController(Controller):
     def edit(self, view: View, request: Request):
         ticket = Ticket.find_or_fail(request.param("id"))
         users = User.all()
+        projects = Project.all()
         return view.render(
             "tickets.edit",
             {
                 "ticket": ticket,
                 "statuses": Ticket.ALLOWED_STATUSES,
                 "users": users,
+                "projects": projects,
             },
         )
 
@@ -107,6 +118,10 @@ class TicketController(Controller):
         assignee_raw = request.input("assignee_id")
         ticket.assignee_id = (
             int(assignee_raw) if assignee_raw and str(assignee_raw).isdigit() else None
+        )
+        project_raw = request.input("project_id")
+        ticket.project_id = (
+            int(project_raw) if project_raw and str(project_raw).isdigit() else None
         )
         ticket.save()
 

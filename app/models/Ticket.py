@@ -12,6 +12,7 @@ class Ticket(Model):
         "description",
         "status",
         "assignee_id",
+        "project_id",
     ]
 
     # Centralized statuses for validation and rendering
@@ -30,3 +31,8 @@ class Ticket(Model):
         return User
 
 
+    @belongs_to("project_id", "id")
+    def project(self):
+        from app.models.Project import Project
+
+        return Project

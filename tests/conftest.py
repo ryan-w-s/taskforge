@@ -71,11 +71,11 @@ def pytest_sessionfinish(session, exitstatus):
         db_file = Path(db_path).resolve()
         # Comment out the next 3 lines if you prefer to keep the DB for inspection.
         # Only remove if it's our test database
-        # if db_file.exists() and db_file.name == "masonite_test.sqlite3":
-        #     try:
-        #         db_file.unlink()
-        #     except Exception:
-        #         pass
+        if db_file.exists() and db_file.name == "masonite_test.sqlite3":
+            try:
+                db_file.unlink()
+            except Exception:
+                pass
 
     # Keep .env.test by default; uncomment to remove automatically
     # try:

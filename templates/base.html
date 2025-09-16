@@ -16,7 +16,13 @@
     {% endblock %}
   </head>
   <body>
-    {% block content %}{% endblock %}
+    <div class="max-w-6xl mx-auto p-4">
+      <nav class="mb-6 flex gap-4">
+        <a class="text-blue-700" href="/tickets">Tickets</a>
+        <a class="text-blue-700" href="/projects">Projects</a>
+      </nav>
+      {% block content %}{% endblock %}
+    </div>
     {% block js %}
     <!-- <script src="/assets/js/app.js"></script> -->
     {% endblock %}

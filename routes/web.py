@@ -16,3 +16,14 @@ ROUTES += [
     Route.post("/tickets/@id:int/comment", "TicketController@comment").middleware("auth").name("tickets.comment"),
     Route.post("/tickets/@id:int/delete", "TicketController@delete").middleware("auth").name("tickets.delete"),
 ]
+
+# Project routes (protected)
+ROUTES += [
+    Route.get("/projects", "ProjectController@index").middleware("auth").name("projects.index"),
+    Route.get("/projects/create", "ProjectController@create").middleware("auth").name("projects.create"),
+    Route.post("/projects", "ProjectController@store").middleware("auth").name("projects.store"),
+    Route.get("/projects/@id:int", "ProjectController@show").middleware("auth").name("projects.show"),
+    Route.get("/projects/@id:int/edit", "ProjectController@edit").middleware("auth").name("projects.edit"),
+    Route.post("/projects/@id:int/update", "ProjectController@update").middleware("auth").name("projects.update"),
+    Route.post("/projects/@id:int/delete", "ProjectController@delete").middleware("auth").name("projects.delete"),
+]
