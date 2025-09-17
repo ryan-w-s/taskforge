@@ -9,7 +9,7 @@
       <a class="text-blue-700" href="/projects/{{ project.id }}">← Back to Project</a>
       <h1 class="text-2xl font-semibold mt-1">{{ project.name }} · Board</h1>
     </div>
-    <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/tickets/create">New Ticket</a>
+    <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/tickets/create?project_id={{ project.id }}">New Ticket</a>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-5 gap-4">

@@ -14,15 +14,21 @@ class TicketController(Controller):
         tickets = Ticket.with_("assignee").order_by("-id").get()
         return view.render("tickets.index", {"tickets": tickets})
 
-    def create(self, view: View):
+    def create(self, view: View, request: Request):
         users = User.all()
         projects = Project.all()
+        # Allow preselecting a project via query param
+        selected_project_id = None
+        raw = request.input("project_id")
+        if raw and str(raw).isdigit():
+            selected_project_id = int(raw)
         return view.render(
             "tickets.create",
             {
                 "statuses": Ticket.ALLOWED_STATUSES,
                 "users": users,
                 "projects": projects,
+                "selected_project_id": selected_project_id,
             },
         )
 

@@ -53,7 +53,7 @@
       <select class="w-full border rounded p-2" name="project_id">
         <option value="">No Project</option>
         @for project in projects
-          <option value="{{ project.id }}">{{ project.name }}</option>
+          <option value="{{ project.id }}" {{ 'selected' if selected_project_id and project.id == selected_project_id else '' }}>{{ project.name }}</option>
         @endfor
       </select>
     </div>
