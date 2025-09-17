@@ -14,6 +14,7 @@ ROUTES += [
     Route.get("/tickets/@id:int/edit", "TicketController@edit").middleware("auth").name("tickets.edit"),
     Route.post("/tickets/@id:int/update", "TicketController@update").middleware("auth").name("tickets.update"),
     Route.post("/tickets/@id:int/comment", "TicketController@comment").middleware("auth").name("tickets.comment"),
+    Route.post("/tickets/@id:int/move", "TicketController@move").middleware("auth").name("tickets.move"),
     Route.post("/tickets/@id:int/delete", "TicketController@delete").middleware("auth").name("tickets.delete"),
 ]
 
@@ -25,5 +26,6 @@ ROUTES += [
     Route.get("/projects/@id:int", "ProjectController@show").middleware("auth").name("projects.show"),
     Route.get("/projects/@id:int/edit", "ProjectController@edit").middleware("auth").name("projects.edit"),
     Route.post("/projects/@id:int/update", "ProjectController@update").middleware("auth").name("projects.update"),
+    Route.get("/projects/@id:int/board", "ProjectController@board").middleware("auth").name("projects.board"),
     Route.post("/projects/@id:int/delete", "ProjectController@delete").middleware("auth").name("projects.delete"),
 ]

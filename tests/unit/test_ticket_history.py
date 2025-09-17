@@ -2,6 +2,7 @@ from tests.TestCase import TestCase
 from app.models.User import User
 from app.models.Ticket import Ticket
 from app.models.TicketHistory import TicketHistory
+from app.models.Project import Project
 import uuid
 
 
@@ -175,3 +176,28 @@ class TicketHistoryTest(TestCase):
         self.assertIsNotNone(history)
         self.assertEqual(history.body, comment_body)
         self.assertEqual(history.changed_by_id, self.user.id)
+
+    def test_move_creates_status_changed_history(self):
+        # Create project and ticket
+        project = Project.create(name="P1", description="", created_by_id=self.user.id)
+        response = self.post(
+            "/tickets",
+            {
+                "title": "Move Ticket",
+                "description": "",
+                "status": "open",
+                "project_id": str(project.id),
+                "assignee_id": "",
+            },
+        )
+        ticket_id = int(response.response.header("Location").split("/")[-1])
+        self.created_ticket_ids.append(ticket_id)
+
+        # Move
+        res = self.post(f"/tickets/{ticket_id}/move", {"to_status": "done"})
+        res.assertOk()
+
+        # Validate history includes status_changed
+        history = TicketHistory.where("ticket_id", ticket_id).order_by("created_at").get()
+        types = [h.event_type for h in history]
+        self.assertIn("status_changed", types)

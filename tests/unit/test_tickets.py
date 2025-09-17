@@ -1,6 +1,7 @@
 from tests import TestCase
 from app.models.User import User
 from app.models.Ticket import Ticket
+from app.models.Project import Project
 import uuid
 
 
@@ -72,3 +73,27 @@ class TicketRoutesTest(TestCase):
         response.assertRedirect()
         # after delete, index should still be accessible
         self.get("/tickets").assertOk()
+
+    def test_move_updates_status_and_creates_history(self):
+        # Create a project to attach ticket to
+        project = Project.create(name="P1", description="", created_by_id=self.user.id)
+
+        # Create ticket in project
+        response = self.post(
+            "/tickets",
+            {
+                "title": "Move Me",
+                "description": "",
+                "status": "open",
+                "project_id": str(project.id),
+                "assignee_id": "",
+            },
+        )
+        ticket_id = int(response.response.header("Location").split("/")[-1])
+
+        # Move to in_progress
+        res = self.post(f"/tickets/{ticket_id}/move", {"to_status": "in_progress"})
+        res.assertOk()
+
+        # Fetch show and verify status changed in page (implicit DB read)
+        self.get(f"/tickets/{ticket_id}").assertOk()

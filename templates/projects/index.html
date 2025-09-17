@@ -24,7 +24,10 @@
         {% for p in projects %}
         <tr class="border-t">
           <td class="p-3">
-            <a class="text-blue-700" href="/projects/{{ p.id }}">{{ p.name }}</a>
+            <div class="flex items-center gap-2">
+              <a class="text-blue-700" href="/projects/{{ p.id }}">{{ p.name }}</a>
+              <a class="text-xs px-2 py-1 bg-indigo-600 text-white rounded" href="/projects/{{ p.id }}/board">Board</a>
+            </div>
           </td>
           <td class="p-3">{{ p.tickets|length }}</td>
           <td class="p-3">{{ p.creator and p.creator.name or '-' }}</td>

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Board · {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <a class="text-blue-700" href="/projects/{{ project.id }}">← Back to Project</a>
+      <h1 class="text-2xl font-semibold mt-1">{{ project.name }} · Board</h1>
+    </div>
+    <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/tickets/create">New Ticket</a>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    {% for status in columns %}
+    <div class="bg-gray-50 rounded border" data-status="{{ status }}" style="display: grid; grid-template-rows: auto 1fr;">
+      <div class="px-3 py-2 border-b bg-white rounded-t flex items-center justify-between">
+        <div class="font-semibold capitalize">{{ status.replace('_', ' ') }}</div>
+        <div class="text-xs text-gray-500">{{ tickets_by_status[status]|length }}</div>
+      </div>
+      <div class="p-2 space-y-2 border-2 border-dashed border-gray-300 rounded-b" data-column style="min-height: 20rem; height: 100%;">
+        {% for t in tickets_by_status[status] %}
+        <div class="bg-white rounded shadow p-3 border cursor-move" data-ticket-id="{{ t.id }}">
+          <div class="text-sm text-gray-500">#{{ t.id }}</div>
+          <a class="block text-blue-700 font-medium" href="/tickets/{{ t.id }}">{{ t.title }}</a>
+          <div class="text-xs text-gray-600 mt-1">Assignee: {{ t.assignee and t.assignee.name or 'Unassigned' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script>
+  // Progressive enhancement: only enable DnD if Sortable is available
+  (function(){
+    function enableBoard(){
+      var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+      var csrf = csrfMeta ? csrfMeta.getAttribute('content') : '';
+      document.querySelectorAll('[data-column]').forEach(function(col){
+        new Sortable(col, {
+          group: 'kanban',
+          animation: 150,
+          direction: 'vertical',
+          emptyInsertThreshold: 30,
+          swapThreshold: 0.65,
+          ghostClass: 'opacity-50',
+          fallbackOnBody: true,
+          scroll: true,
+          scrollSensitivity: 30,
+          onEnd: function(evt){
+            var el = evt.item;
+            var ticketId = el.getAttribute('data-ticket-id');
+            var toCol = evt.to.closest('[data-status]');
+            if (!toCol) { return; }
+            var toStatus = toCol.getAttribute('data-status');
+            fetch('/tickets/' + ticketId + '/move', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf
+              },
+              body: JSON.stringify({ to_status: toStatus })
+            }).then(function(res){
+              if (!res.ok) {
+                // revert on failure
+                evt.from.insertBefore(el, evt.from.children[evt.oldIndex] || null);
+              }
+            }).catch(function(){
+              // revert on network error
+              evt.from.insertBefore(el, evt.from.children[evt.oldIndex] || null);
+            });
+          }
+        });
+      });
+    }
+
+    if (window.Sortable) {
+      enableBoard();
+    } else {
+      // Dynamically load SortableJS from CDN for simplicity
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js';
+      s.onload = enableBoard;
+      document.head.appendChild(s);
+    }
+  })();
+</script>
+{% endblock %}
+
+

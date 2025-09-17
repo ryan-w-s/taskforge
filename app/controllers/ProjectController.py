@@ -36,6 +36,30 @@ class ProjectController(Controller):
         tickets = Ticket.with_("assignee").where("project_id", project.id).order_by("-id").get()
         return view.render("projects.show", {"project": project, "tickets": tickets})
 
+    def board(self, view: View, request: Request):
+        project = Project.with_("creator").find_or_fail(request.param("id"))
+        # Group tickets by status for this project, ordered by id desc within each status
+        tickets = (
+            Ticket.with_("assignee")
+            .where("project_id", project.id)
+            .order_by("-id")
+            .get()
+        )
+
+        grouped = {status: [] for status in Ticket.ALLOWED_STATUSES}
+        for t in tickets:
+            if t.status in grouped:
+                grouped[t.status].append(t)
+
+        return view.render(
+            "projects.board",
+            {
+                "project": project,
+                "columns": Ticket.ALLOWED_STATUSES,
+                "tickets_by_status": grouped,
+            },
+        )
+
     def edit(self, view: View, request: Request):
         project = Project.find_or_fail(request.param("id"))
         return view.render("projects.edit", {"project": project})

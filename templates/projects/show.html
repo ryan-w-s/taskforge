@@ -7,6 +7,7 @@
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-semibold">{{ project.name }}</h1>
     <div class="flex gap-2">
+      <a class="px-3 py-2 bg-indigo-600 text-white rounded" href="/projects/{{ project.id }}/board">Board</a>
       <a class="px-3 py-2 bg-gray-200 rounded" href="/projects/{{ project.id }}/edit">Edit</a>
       <form method="POST" action="/projects/{{ project.id }}/delete">
         {{ csrf_field }}

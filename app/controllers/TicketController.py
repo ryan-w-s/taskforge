@@ -187,3 +187,38 @@ class TicketController(Controller):
         return response.redirect(f"/tickets/{ticket_id}")
 
 
+    def move(self, request: Request, response: Response):
+        """Move a ticket to a new status (Kanban column). Returns JSON."""
+        ticket_id = request.param("id")
+        to_status = request.input("to_status")
+
+        # Validate payload
+        if not to_status or to_status not in Ticket.ALLOWED_STATUSES:
+            return response.json({"error": "Invalid status"}, status=422)
+
+        # Load ticket with project context
+        ticket = Ticket.with_("project").find_or_fail(ticket_id)
+
+        # For MVP, forbid moves if no project context
+        if not ticket.project_id:
+            return response.json({"error": "Ticket has no project"}, status=400)
+
+        # Only create history if status actually changes
+        if ticket.status != to_status:
+            original_status = ticket.status
+            ticket.status = to_status
+            ticket.save()
+
+            TicketHistory.create(
+                ticket_id=ticket.id,
+                changed_by_id=request.user().id,
+                event_type="status_changed",
+                from_status=original_status,
+                to_status=to_status,
+            )
+            print(f"Created history entry for ticket {ticket.id} status change from {original_status} to {to_status}")
+        else:
+            print(f"No status change for ticket {ticket.id}")
+
+        # Return ok JSON
+        return response.json({"ok": True})

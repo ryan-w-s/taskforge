@@ -42,6 +42,9 @@ class ProjectRoutesTest(TestCase):
         # Show
         self.get(f"/projects/{project_id}").assertOk()
 
+        # Board
+        self.get(f"/projects/{project_id}/board").assertOk()
+
         # Edit
         self.get(f"/projects/{project_id}/edit").assertOk()
 
