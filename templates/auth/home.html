@@ -1,17 +1,43 @@
-<!-- Root element for center items -->
-{% extends 'auth/base.html' %}
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="flex flex-col h-screen bg-gray-100">
-    <!-- Auth Card Container -->
-    <div class="grid place-items-center mx-2 my-20">
-        <!-- Auth Card -->
-        <div class="w-11/12 p-12 sm:w-8/12 md:w-6/12 lg:w-5/12 2xl:w-4/12 
-            px-6 py-10 sm:px-10 sm:py-6 
-            bg-white rounded-lg shadow-md lg:shadow-lg">
-            Welcome!
-        </div>
-    </div>
-</div>
+<div class="max-w-5xl mx-auto p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">My Tickets</h1>
+    <a class="px-3 py-2 bg-blue-600 text-white rounded" href="/tickets/create">New Ticket</a>
+  </div>
 
+  @if not tickets
+  <div class="bg-white shadow rounded p-6 text-gray-600">
+    No tickets assigned to you yet.
+  </div>
+  @else
+  <div class="bg-white shadow rounded">
+    <table class="min-w-full">
+      <thead>
+        <tr class="text-left text-gray-600 border-b">
+          <th class="p-3">ID</th>
+          <th class="p-3">Title</th>
+          <th class="p-3">Status</th>
+          <th class="p-3">Project</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for ticket in tickets
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3">{{ ticket.id }}</td>
+          <td class="p-3">
+            <a class="text-blue-700" href="/tickets/{{ ticket.id }}">{{ ticket.title }}</a>
+          </td>
+          <td class="p-3">{{ ticket.status }}</td>
+          <td class="p-3">{{ ticket.project and ticket.project.name or '-' }}</td>
+        </tr>
+        @endfor
+      </tbody>
+    </table>
+  </div>
+  @endif
+</div>
 {% endblock %}

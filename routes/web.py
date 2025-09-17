@@ -1,7 +1,10 @@
 from masonite.routes import Route
 from masonite.authentication import Auth
 
-ROUTES = [Route.get("/", "WelcomeController@show")]
+# Home route: authenticated users land on their home, guests go to login via middleware
+ROUTES = [
+    Route.get("/", "auth/HomeController@show").middleware("auth").name("auth.home")
+]
 
 ROUTES += Auth.routes()
 
